@@ -1,4 +1,4 @@
-name: Build spaCy tr csv dump
+name: Build spaCy csv dump
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ jobs:
   dump:
     runs-on: ubuntu-latest
     env:
-      LANGS: "tr"
+      LANGS: "en,ro"
       OUT_DIR: "data/dump"
 
     steps:
@@ -30,39 +30,17 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt || true
-          pip install "spacy==3.4.4" pandas tqdm papermill ipykernel
-          pip install "tr_core_news_lg @ https://huggingface.co/turkish-nlp-suite/tr_core_news_lg/resolve/main/tr_core_news_lg-1.0-py3-none-any.whl"
+          pip install papermill pandas tqdm ipykernel
           python -m ipykernel install --user --name python3
 
       - name: Ensure output dir
         run: mkdir -p data/dump
 
-      - name: Fetch stimuli JSON
-        run: |
-          rm -rf languages_json* || true
-          wget -q https://github.com/senisioi/repository/releases/download/eyelanguages0/languages_json_all.zip
-          unzip -q languages_json_all.zip
-          test -d languages_json
-
-      - name: Run Notebook (TR)
+      - name: Run Notebook
         run: |
           papermill --kernel python3 \
             "notebooks/generate_spaCy_dumps_tr.ipynb" "/tmp/run_dump_output.ipynb"
-
-      - name: Show dump summary
-        if: always()
-        run: |
-          echo "Dumped files:"
-          find data/dump -type f -name '*.csv' | head -n 50 || true
-
-      - name: Upload executed notebook
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: run_dump_output
-          path: /tmp/run_dump_output.ipynb
-          if-no-files-found: warn
-
+            
       - name: Upload dump as artifact
         if: always()
         uses: actions/upload-artifact@v4
