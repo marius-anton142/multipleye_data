@@ -9,7 +9,7 @@ jobs:
   dump:
     runs-on: ubuntu-latest
     env:
-      LANGS: "en,ro"
+      LANGS: "tr"
       OUT_DIR: "data/dump"
 
     steps:
@@ -48,3 +48,4 @@ jobs:
           name: dump-csvs
           path: data/dump
           if-no-files-found: warn
+
